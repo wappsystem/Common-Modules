@@ -1,0 +1,170 @@
+<section>
+      VmInclude:__BASE__/vmiis/Common-Code/toolbar/day.html
+      VmInclude:__BASE__/vmiis/Common-Code/calendar/day.html
+</section>
+<script>
+    function F__ID(){
+        //--------------------------------------------------------
+        VmInclude:__BASE__/vmiis/Common-Code/toolbar/day.js
+        //--------------------------------------------------------
+        var record_name=$vm.module_list[$vm.vm['__ID'].name][3];
+        var booking_record_db_pid=$vm.module_list[record_name][0];
+        //--------------------------------------------------------
+        var mid=$vm.module_list[record_name][0];
+        var url=$vm.module_list[record_name][1];
+        var src=$vm.module_list[record_name][2];
+        var param={
+            name:record_name,
+            pid:$vm.id(url+mid),
+            url:$vm.url(url),
+            source:src,
+            op:{}
+        }
+        $vm.load_module(param);
+        //--------------------------------------------------------
+        var display=function(){
+            $vm.g_update_key='__ID';
+    		var sql="select ID,UID,Information from [FORM-20003816] order by S1";
+    		$VmAPI.request({data:{cmd:'query_records',sql:sql},callback:function(res){
+                create_table(res);
+                put_on_click_for_booking();
+                sql="select ID,PUID,Author,Information from [FORM-20003817] where Convert(date,dt1)=@T1";
+    		    $VmAPI.request({data:{cmd:'query_records',sql:sql,t1:$('#date__ID').val()},callback:function(res){
+    		        put_on_bookings(res);
+    		    }});
+            }})
+        }
+        //--------------------------------------------------------
+        var create_table=function(c){
+    		var txt="<tr><th style='display:none'></th><th style='display:none'></th><th style='display:none'></th><th style='display:none'></th><th style='width:200px;text-align:left'>Car</th>";
+    		for(var j=0;j<12;j++){
+    			txt+="<th colspan=2 style='width:8%;text-align:left'>"+vm_pad((8+j),2)+":00</th>";
+    		}
+    		txt+="<th></th></tr>";
+    		$('#thead__ID').html('').append(txt);
+
+    		$('#tbody__ID').html('');
+    		for(var i=0;i<c.records.length;i++){
+    			var id=c.records[i].ID;
+    			var uid=c.records[i].UID;
+    			var car_number=c.records[i].Number;
+    			var car_name=c.records[i].Model;
+    			txt="<tr><td style='display:none'>"+id+"</td><td style='display:none'>"+uid+"</td>";
+    			txt+="<td style='display:none'>"+car_number+"</td><td style='display:none'>"+car_name+"</td>";
+    			txt+="<td style='width:100px'>"+car_number+' - '+car_name+"</td>";
+    			for(j=0;j<24;j++){
+    				txt+="<td></td>";
+    			}
+    			txt+="<td></td></tr>";
+    			$('#tbody__ID').append(txt);
+    		}
+    	};
+    	//-----------------------------------
+        var put_on_click_for_booking=function(){
+    		$('#tbody__ID tr').each(function(){
+    			var id  =$(this).children().eq(0).text();
+    			var uid =$(this).children().eq(1).text();
+    			var car_number  =$(this).children().eq(2).text();
+    			var car_name  =$(this).children().eq(3).text();
+    			var name  =$(this).children().eq(4).text();
+    			$(this).children().eq(4).html('<u>'+name+'</u>');
+    			$(this).children().eq(4).find('u').on('click',function(){
+                    alert(id);
+                    /*
+                    $(this).vm8('open_excel_dialog', '20007157', 'dialog_content_slot__ID', {excel_dialog:'view',rid:id});
+                    $('#dialog__ID').show();
+                    $('#dialog_div__ID').css('height','220px');
+                    $('#dialog_div__ID div.vm_excel_div').css('height','180px');
+                    */
+    			});
+    			for(var j=0;j<24;j++){
+    				var $cell=$(this).children().eq(5+j);
+    				$cell.on('click',{j:j,car_uid:uid,car_number:car_number,car_name:car_name}, on_click_for_new_booking );
+    				$cell.css('cursor','pointer');
+    			}
+    		});
+    	};
+    	//-----------------------------------
+        function on_click_for_new_booking(event){
+    		var date=$('#date__ID').val();
+    		var time=vm_pad((8+Math.floor(event.data.j/2)),2)+":"+vm_pad(30*(event.data.j%2),2);
+            var mid=$vm.module_list[record_name][0];
+            var url=$vm.module_list[record_name][1];
+            var src=$vm.module_list[record_name][2];
+            var param={
+                name:record_name,
+                pid:$vm.id(url+mid),
+                slot:$vm.root_layout_content_slot,
+                url:$vm.url(url),
+                source:src,
+                car_uid:event.data.car_uid,
+                op:{new:1,date:date,time:time,car_number:event.data.car_number, car_name:event.data.car_name}
+            }
+            $vm.load_module(param);
+    	}
+    	//-----------------------------------
+        var put_on_bookings=function(c){
+    		for(var i=0;i<c.records.length;i++){
+    			var rid			=c.records[i].ID;
+    			var uid			=c.records[i].PUID;
+    			var contact		=c.records[i].Booked_by; if(contact==='') contact='No Contact';
+    			var date		=c.records[i].Date; date=date_parse(date);
+    			var time		=c.records[i].Time;
+    			var duration_0	=c.records[i].Duration;
+    			var author		=c.records[i].Author;
+    			//----------------------
+    			var duration	=parseFloat(duration_0);
+    			var num=duration/0.5;
+    			var pos=((parseInt(time.split(':')[0])-8)*60+parseInt(time.split(':')[1]))/30;
+    			var $tr=$("#tbody__ID td:nth-child(2)").filter(function() {
+    				return $(this).text()==uid;
+    			}).closest("tr");
+    			for(var j=0;j<num;j++){
+    				var $cell=$tr.find('td').eq(pos+5+j);
+    				$cell.off('click');
+    				$cell.css('cursor','default');
+    				$cell.css('background-color','green');
+    				if(j!==0 && j!==num-1){		$cell.css('border-left','0px solid red');	$cell.css('border-right','0px solid red');	}
+    				else if(j===0 && num>1){	$cell.css('border-right','0px solid red');	}
+    				else if(j==num-1 && num>1){	$cell.css('border-left','0px solid red');	}
+    				if(j===0){
+    					$cell.html('<u style=cursor:pointer>'+contact+'</u>');
+    					$cell.find('u').data("rid",rid);
+    					$cell.find('u').data("author",author);
+    					$cell.find('u').on('click',function(){
+    						var rid=$(this).data("rid");
+    						var author=$(this).data("author");
+
+                            var mid=$vm.module_list[record_name][0];
+                            var url=$vm.module_list[record_name][1];
+                            var src=$vm.module_list[record_name][2];
+                            var param={
+                                name:record_name,
+                                pid:$vm.id(url+mid),
+                                slot:$vm.root_layout_content_slot,
+                                url:$vm.url(url),
+                                source:src,
+                                op:{sql_where:'where id='+rid}
+                            }
+                            $vm.load_module(param);
+                            /*
+    				        var excel_dialog_type='view';
+    				        if(author==g_user){
+    				            excel_dialog_type='edit';
+    				        }
+                            $(this).vm8('open_excel_dialog', '20007201', 'dialog_content_slot__ID', {excel_dialog:excel_dialog_type,rid:rid});
+                            $('#dialog__ID').show();
+                            $('#dialog_div__ID').css('height','500px');
+                            $('#dialog_div__ID div.vm_excel_div').css('height','460px');
+                            */
+    					})
+    				}
+    			}
+    		}
+        }
+        $('#D__ID').on('back',display);
+        $('#D__ID').on('display',display);
+        $('#D__ID').on('load',display);
+        //--------------------------------------------------------
+    }
+</script>

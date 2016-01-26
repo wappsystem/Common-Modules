@@ -1,0 +1,91 @@
+<section>
+      VmInclude:__BASE__/vmiis/Common-Code/frame/excel.html
+</section>
+<script>
+    function F__ID(){
+        //-------------------------------------
+        var fields="Car,Date,Time,Duration,Color,Purpose of Journey|Purpose";
+        fields+=",I have<br>a valid<br>driving<br>licence|Q1";
+        fields+=",I have not<br>had an<br>insurance<br>claim<br>refused|Q2";
+        fields+=",I have<br>Manager's<br>approval|Q3";
+        fields+=",Project Code|Code,Booked_by,Contact_Phone,Contact_Email,Addtional_Information,Odometer (Start)|Odometer_Start,Odometer (End)|Odometer_End";
+        fields+=",Submit Date|DateTime,Submitted by|Author";
+        //-------------------------------------
+        VmInclude:__BASE__/vmiis/Common-Code/frame/excel.js
+        //-------------------------------------
+        columns[1]={data:'Date',width:120,type: 'date',format: 'DD/MM/YYYY',correctFormat:true};
+        //-------------------------------------
+        columns[3]={data:'Duration',type: 'dropdown',source: ['0.5','1.0','1.5','2.0','2.5','3.0','3.5','4.0','4.5','5.0','5.5','6.0','6.5','7.0','7.5','8.0','8.5','9.0','9.5','10'],trimDropdown:false };
+        //-------------------------------------
+        columns[4]={data:'Color',width:60, renderer:function(instance, td, row, col, prop, value, cellProperties){
+    		if(value===undefined || value===null){ value="#ffffff";}
+            if(value==="") value="#ffffff";
+    	    $(td).html("<input type=color value='"+value+"' style='border: 0px solid; background-color:#ffffff' />");
+    	    $(td).find('input').on('change',function(){ $("#excel__ID").handsontable("setDataAtCell", row, col, this.value); });
+            return td;
+        }};
+        //-------------------------------------
+        columns[6]={data:'Q1',type:'checkbox'};
+        columns[7]={data:'Q2',type:'checkbox'};
+        columns[8]={data:'Q3',type:'checkbox'};
+        //-------------------------------------
+        var before_submit=function(record,dbv){
+            if($vm.vm['__ID'].car_uid!==undefined) dbv.PUID= $vm.vm['__ID'].car_uid;
+            dbv.DT1=record.Date;
+            dbv.S1=record.Time;
+            dbv.V1=record.Duration;
+            dbv.S2=record.Car.split(' ')[0];
+            return true;
+        };
+        //-------------------------------------
+        var pre_data_process=function (){
+            for(var i=0;i<records.length;i++){
+                records[i].Q1=cv(records[i].Q1);
+                records[i].Q2=cv(records[i].Q2);
+                records[i].Q3=cv(records[i].Q3);
+            }
+        };
+        //-------------------------------------
+        var cv=function(v){
+            if(v==="True") return true;
+            else if(v==='1') return true;
+            else if(v==='on') return true;
+            else return false;
+        };
+        //-------------------------------------
+        var new_pre_data_process=function(){
+            pre_data_process();
+            if($vm.vm['__ID'].car_number!==undefined) $("#excel__ID").handsontable("setDataAtCell", 0, 0, $vm.vm['__ID'].car_number+' '+$vm.vm['__ID'].car_name);
+            if($vm.vm['__ID'].date!==undefined) $("#excel__ID").handsontable("setDataAtCell", 0, 1, $vm.vm['__ID'].date);
+            if($vm.vm['__ID'].time!==undefined) $("#excel__ID").handsontable("setDataAtCell", 0, 2, $vm.vm['__ID'].time);
+            $("#excel__ID").handsontable("setDataAtCell", 0, 3, 0.5);
+            var hot=$('#excel__ID').handsontable('getInstance');
+            hot.render();
+        };
+        //-------------------------------------
+        var sql_where="";
+        $('#D__ID').on('load',function(){
+            sql_where=$vm.vm['__ID'].op.sql_where;
+            grid_data();
+        })
+        //-------------------------------------
+        var grid_process=function(res){
+            if($vm.vm['__ID'].op.new!==undefined){
+                $vm.vm['__ID'].op.new=undefined;
+                $('#new__ID').triggerHandler('click');
+                $("#excel__ID").handsontable("setDataAtCell", 0, 0, $vm.vm['__ID'].op.car_number+' '+$vm.vm['__ID'].op.car_name);
+                $("#excel__ID").handsontable("setDataAtCell", 0, 1, $vm.vm['__ID'].op.date);
+                $("#excel__ID").handsontable("setDataAtCell", 0, 2, $vm.vm['__ID'].op.time);
+                $("#excel__ID").handsontable("render");
+            }
+        };
+        //-------------------------------------
+    }
+</script>
+<style>
+    VmInclude:__BASE__/vmiis/Common-Code/toolbar/toolbar_for_excel.css
+    #D__ID{
+        font-size:14px;
+        font-family: Helvetica, Arial, sans-serif;
+    }
+</style>
