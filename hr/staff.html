@@ -4,7 +4,7 @@
 <script>
     function F__ID(){
         //-------------------------------------
-        var fields="Image,Number,Model,Description";
+        var fields="Image,Staff_ID,Givennames,Surname,Work_Phone,Hoem_Phone,Mobile,Email,Department,Position";
         fields+=",Submit Date|DateTime,Submitted by|Author,Hidden|Modified";
         //-------------------------------------
         VmInclude:__BASE__/vmiis/Common-Code/frame/excel.js
@@ -24,13 +24,13 @@
             }
         };
         //-------------------------------------
-        columns[0]={data:"Image",width:120,renderer:function(instance, td, row, col, prop, value, cellProperties){
+        columns[0]={data:"Image",width:75,renderer:function(instance, td, row, col, prop, value, cellProperties){
             if(prop!=="Image") return td;
             if(value===undefined) value="";
             if(value===null) value="";
             if(value==="") td.innerHTML="";
             else{
-                td.innerHTML="<img height='80' width='110' />";
+                td.innerHTML="<img height='90' width='75' />";
                 $img=$(td).find('img');
                 var Modified=records[row].Modified;
                 set_image_url($img,value,1,Modified);

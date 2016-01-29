@@ -11,6 +11,20 @@
         var record_name=$vm.module_list[$vm.vm['__ID'].name][3];
         var booking_record_db_pid=$vm.module_list[record_name][0];
         //--------------------------------------------------------
+        /*
+        var mid=$vm.module_list[record_name][0];
+        var url=$vm.module_list[record_name][1];
+        var src=$vm.module_list[record_name][2];
+        var param={
+            name:record_name,
+            pid:$vm.id(url+mid),
+            url:$vm.url(url),
+            source:src,
+            op:{}
+        }
+        $vm.load_module(param);
+        */
+        //--------------------------------------------------------
         var display=function(){
             $vm.g_update_key='__ID';
     		var sql="select ID,UID,Information from [FORM-20003816] order by S1";
@@ -58,7 +72,13 @@
     			var name  =$(this).children().eq(4).text();
     			$(this).children().eq(4).html('<u>'+name+'</u>');
     			$(this).children().eq(4).find('u').on('click',function(){
-                    //alert(id); view car
+                    alert(id);
+                    /*
+                    $(this).vm8('open_excel_dialog', '20007157', 'dialog_content_slot__ID', {excel_dialog:'view',rid:id});
+                    $('#dialog__ID').show();
+                    $('#dialog_div__ID').css('height','220px');
+                    $('#dialog_div__ID div.vm_excel_div').css('height','180px');
+                    */
     			});
     			for(var j=0;j<24;j++){
     				var $cell=$(this).children().eq(5+j);

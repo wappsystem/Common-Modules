@@ -1,0 +1,73 @@
+<html_toolbar>
+    <div id=toolbar__ID>
+        <a id=backB__ID>Back</a><span class=tab__ID></span>
+    </div>
+</html_toolbar>
+<div id="aceH__ID"><div id=editorH__ID style='height:100%;'></div></div>
+<script>
+    function F__ID(){
+        $('#D__ID').on('load',function(){
+            $('#aceH__ID').height($(window).height() - $('#aceH__ID').offset().top-$('#'+g_vm.root_layout_footer).outerHeight());
+        	var aceH=ace.edit("editorH__ID");
+        	aceH.getSession().setMode("ace/mode/javascript");
+        	aceH.setTheme("ace/theme/GitHub");
+        	aceH.setOptions({
+                enableBasicAutocompletion: true,
+                enableLiveAutocompletion: true
+            });
+    	    aceH.setShowPrintMargin(false);
+            var record=$vm.vm['__ID'].op.record;
+            aceH.getSession().setValue(JSON.stringify($vm.vm['__ID'].op.record, undefined, 4));
+        });
+        //--------------------------------
+        $('#backB__ID').on('click',function(event){
+            event.stopPropagation();
+            $vm.back({div:'__ID'});
+        });
+    	//---------------------------------------------
+    }
+</script>
+<style>
+    #toolbar__ID *{
+        margin:0;
+        padding:0;
+        vertical-align:middle;
+    }
+    #toolbar__ID{
+        padding:6px;
+        background-color:#ddd;
+        font-family: Helvetica, Arial, sans-serif;
+        font-size:11pt;
+        border-bottom: 1px solid #aaa;
+    }
+    #toolbar__ID a{
+        background-color:#697b7b;
+        border:0px solid #18ab29;
+        display:inline-block;
+        cursor:pointer;
+        color:#ffffff;
+        font: 9pt/30px Arial;
+        padding-left:15px;
+        padding-right:15px;
+        text-decoration:none;
+        text-shadow:1px 1px 0px #2f6627;
+        -moz-border-radius:8px;
+        -webkit-border-radius:8px;
+        border-radius:8px;
+        transition: all 0.2s ease-in-out;
+    }
+    #toolbar__ID a:hover {
+    	background-color:#525959;
+    }
+    #tb__ID{
+        /*min-width:100px;*/
+        border-collapse: collapse;
+    }
+    #tb__ID td{
+        border:1px solid #bbb;
+        padding:6px;
+    }
+    #title__ID{
+        font-weight:700;
+    }
+</style>
